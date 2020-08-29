@@ -100,31 +100,96 @@ int main(void) {
 
   uint8_t displaycontrol = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
   data[1] = displaycontrol | LCD_DISPLAYCONTROL;
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   lcd->iic_write(data, 2);
 
   data[1] = LCD_CLEARDISPLAY;
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
   lcd->iic_write(data, 2);
   arc_delay_us(2000);
 
   uint8_t displayMode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
   data[1] = displayMode | LCD_ENTRYMODESET;
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
   lcd->iic_write(data, 2);
   
+  uint8_t strData[2];
+  strData[0] = 0x40;
+  strData[1] = 'A';
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  lcd->iic_write(strData, 2);
+  lcd->iic_write(strData, 2);
+  
+  lcd->iic_close();
+  lcd->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
   lcd->iic_control(IIC_CMD_MST_SET_TAR_ADDR, 0x62);
-  uint8_t regData[2] = {0, 0};
   lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
-  lcd->iic_write(regData, 2);
 
-  regData[0] = 0x08; regData[1] = 0xff;
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // data[0] = 0x40;
+  // data[1] = 'A';
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_write(data, 2);
+  // arc_delay_us(2000);
+
+  uint8_t regData[2] = {0, 0};
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
   lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x08; regData[1] = 0x55;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
 
   regData[0] = 0x01; regData[1] = 0x20;
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
   lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x04; regData[1] = 0xff;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x03; regData[1] = 0x00;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x02; regData[1] = 0x00;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  board_delay_ms(10000, 0);
+  lcd->iic_close();
+  lcd->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
+  lcd->iic_control(IIC_CMD_MST_SET_TAR_ADDR, 0x3e);
+  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+
+  data[0] = 0x80;
+  data[1] &= ~LCD_DISPLAYON;
+  data[1] |= LCD_DISPLAYCONTROL;
+  lcd->iic_write(data, 2);
+
+  board_delay_ms(1000, 0);
+  data[1] |= LCD_DISPLAYON | LCD_BLINKON;
+  data[1] &= ~LCD_CURSORON;
+  data[1] |= LCD_DISPLAYCONTROL;
+  lcd->iic_write(data, 2);
+
+  regData = 
 
   while (1) {
   }
