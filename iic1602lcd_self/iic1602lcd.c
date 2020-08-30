@@ -10,7 +10,7 @@
 /* Internal Setup Function */
 static void set_CursorPos_(uint8_t Col, uint8_t Row);
 static void print_(const char *Str, uint8_t Len);
-static void write(const char Chr);
+static void write_(const char Chr);
 static void clear_();
 static void home_();
 /* End Internal Setup Function */
@@ -19,8 +19,8 @@ static void home_();
 static void set_Display_(ON_OFF_t Value);
 static void set_Blink_(ON_OFF_t Value);
 static void set_Cursor_(ON_OFF_t Value);
-static void set_ScrollDir_(L_R_t Value);
-static void set_CharStarting_(L_R_t Value);
+static void set_ScrollDir_(LEFT_RIGHT_t Value);
+static void set_CharStarting_(LEFT_RIGHT_t Value);
 static void set_AutoScroll_(ON_OFF_t Value);
 /* End Internal Toggle Function */
 
@@ -39,8 +39,9 @@ static void i2c_setRGBReg(uint8_t Addr, uint8_t Data);
 
 static int32_t iic1602_initialized = 0;
 /* LCD Private Variable */
-DEV_IIC_PTR iic_ptr = NULL;
+static DEV_IIC_PTR iic_ptr = NULL;
 static LCD_t lcd;
+LCD_t *this;
 static uint8_t ColorComponent[4][3] = {
     {0xff, 0xff, 0xff},
     {0xff, 0x00, 0x00},
@@ -51,33 +52,6 @@ static uint8_t displayFunction_, displayControl_, displayMode_;
 
 pLCD_t LCD_Init(int32_t iic_id)
 {
-    iic_ptr = iic_get_dev(iic_id);
-    // if (iic_ptr == NULL)
-    // {
-    //     return NULL;
-    // }
-    displayFunction_ = LCD_2LINE;
-
-    arc_delay_us(50000); // Waiting for booting up
-
-    command(LCD_FUNCTIONSET | displayFunction_);
-    arc_delay_us(4500); // Wait more than 4.1ms
-
-    displayControl_ = 0;
-    set_Display_(ON);
-
-    // clear_();
-
-    // displayMode_ = LCD_ENTRYLEFT & LCD_ENTRYDECREMENT_;
-
-    // command(LCD_ENTRYMODESET | displayMode_);
-
-    // i2c_setRGBReg(REG_MODE1, 0);
-    // i2c_setRGBReg(REG_OUTPUT, 0xFF);
-    // i2c_setRGBReg(REG_MODE2, 0x20);
-
-    // set_Color_(WHITE);
-
     /* Assigning Public Functions*/
     lcd.set_CursorPos = set_CursorPos_;
     lcd.print = print_;
@@ -95,9 +69,47 @@ pLCD_t LCD_Init(int32_t iic_id)
     lcd.set_Color = set_Color_;
     lcd.set_RGBs = set_RGBs_;
     lcd.set_RGB = set_RGB_;
+
+    lcd.write = write_;
+
+    this = &lcd;
     /* End Assigning Public Functions*/
 
-    return &lcd;
+    iic_ptr = iic_get_dev(iic_id);
+    if (iic_ptr == NULL)
+        return NULL;
+    iic_ptr->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
+    iic_ptr->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
+
+    arc_delay_us(50000);
+
+    displayFunction_ = 0;
+    displayFunction_ |= LCD_2LINE;
+
+    displayFunction_ |= LCD_FUNCTIONSET;
+    command(displayFunction_);
+
+    arc_delay_us(4500);
+    displayControl_ = LCD_DISPLAYON & LCD_CURSOROFF_ & LCD_BLINKOFF_;
+    this->set_Display(ON);
+
+    this->clear();
+    arc_delay_us(2000);
+
+    displayMode_ = LCD_ENTRYLEFT & LCD_ENTRYDECREMENT_;
+    command(LCD_ENTRYMODESET | displayMode_);
+
+    i2c_setRGBReg(REG_MODE1, 0);
+
+    i2c_setRGBReg(REG_OUTPUT, 0xFF);
+
+    i2c_setRGBReg(REG_MODE2, 0x20);
+
+    this->blink_LED(OFF);
+
+    this->set_Color(WHITE);
+
+    return this;
 }
 
 static void set_CursorPos_(uint8_t Col, uint8_t Row)
@@ -114,7 +126,7 @@ static void print_(const char *Str, uint8_t Len)
     }
 }
 
-static void write(const char Chr)
+static void write_(const char Chr)
 {
     uint8_t Data[2] = {0x40, Chr};
     i2c_sendBytes(Data, 2);
@@ -171,9 +183,9 @@ static void set_Blink_(ON_OFF_t Value)
     command(LCD_DISPLAYCONTROL | displayControl_);
 }
 
-static void set_ScrollDir_(L_R_t Value)
+static void set_ScrollDir_(LEFT_RIGHT_t Value)
 {
-    if (Value == L)
+    if (Value == LEFT)
     {
         command((LCD_CURSORSHIFT | LCD_DISPLAYMOVE) & LCD_MOVELEFT_);
     }
@@ -183,9 +195,9 @@ static void set_ScrollDir_(L_R_t Value)
     }
 }
 
-static void set_CharStarting_(L_R_t Value)
+static void set_CharStarting_(LEFT_RIGHT_t Value)
 {
-    if (Value == L)
+    if (Value == LEFT)
     {
         displayMode_ |= LCD_ENTRYLEFT;
     }
@@ -255,16 +267,8 @@ static void set_RGB_(COLOR_t Color, uint8_t Value)
 
 static void i2c_sendBytes(uint8_t *pData, uint8_t Num)
 {
-    iic_ptr->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
     iic_ptr->iic_control(IIC_CMD_MST_SET_TAR_ADDR, LCD_ADDRESS);
-    iic_ptr->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
     iic_ptr->iic_write(pData, Num);
-    arc_delay_us(200);
-    iic_ptr->iic_close();
-    for (int i = 0; i < Num; i++)
-    {
-        EMBARC_PRINTF("%X\n", pData[i]);
-    }
 }
 
 static void command(uint8_t Value)
@@ -275,10 +279,7 @@ static void command(uint8_t Value)
 
 static void i2c_setRGBReg(uint8_t Addr, uint8_t Data)
 {
-    iic_ptr->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
     iic_ptr->iic_control(IIC_CMD_MST_SET_TAR_ADDR, RGB_ADDRESS);
-    iic_ptr->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
     uint8_t regData[2] = {Addr, Data};
     iic_ptr->iic_write(regData, 2);
-    iic_ptr->iic_close();
 }

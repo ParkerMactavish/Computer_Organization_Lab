@@ -48,7 +48,8 @@ const char degreeC[3] = {0xDF, 'C', '\0'};
 /**
  * \brief	Test hardware board without any peripheral
  */
-int main(void) {
+int main(void)
+{
   /*
   IIC1602LCD_CONFIG_T lcd_config = {
       .iic_addr = 62, // May be 0x3F according to your PCF8574
@@ -89,10 +90,10 @@ int main(void) {
   displayFunction |= LCD_2LINE;
 
   arc_delay_us(50000);
-  
+
   displayFunction |= LCD_FUNCTIONSET;
 
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
   uint8_t data[2] = {0x80, displayFunction};
   lcd->iic_write(data, 2);
 
@@ -104,30 +105,30 @@ int main(void) {
   lcd->iic_write(data, 2);
 
   data[1] = LCD_CLEARDISPLAY;
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   lcd->iic_write(data, 2);
   arc_delay_us(2000);
 
   uint8_t displayMode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
   data[1] = displayMode | LCD_ENTRYMODESET;
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   lcd->iic_write(data, 2);
-  
+
   uint8_t strData[2];
   strData[0] = 0x40;
   strData[1] = 'A';
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   lcd->iic_write(strData, 2);
   lcd->iic_write(strData, 2);
-  
-  lcd->iic_close();
-  lcd->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
+
+  // lcd->iic_close();
+  // lcd->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
   lcd->iic_control(IIC_CMD_MST_SET_TAR_ADDR, 0x62);
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
 
   // data[0] = 0x40;
   // data[1] = 'A';
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   // lcd->iic_write(data, 2);
   // arc_delay_us(2000);
 
@@ -137,35 +138,40 @@ int main(void) {
   lcd->iic_write(regData, 2);
   arc_delay_us(2000);
 
-  regData[0] = 0x08; regData[1] = 0x55;
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
-  // lcd->iic_write(regData, 1);
-  // lcd->iic_write((regData + 1), 1);
-  lcd->iic_write(regData, 2);
-  arc_delay_us(2000);
-
-  regData[0] = 0x01; regData[1] = 0x20;
-  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
-  // lcd->iic_write(regData, 1);
-  // lcd->iic_write((regData + 1), 1);
-  lcd->iic_write(regData, 2);
-  arc_delay_us(2000);
-
-  regData[0] = 0x04; regData[1] = 0xff;
+  regData[0] = 0x08;
+  regData[1] = 0x55;
   // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   // lcd->iic_write(regData, 1);
   // lcd->iic_write((regData + 1), 1);
   lcd->iic_write(regData, 2);
   arc_delay_us(2000);
 
-  regData[0] = 0x03; regData[1] = 0x00;
+  regData[0] = 0x01;
+  regData[1] = 0x20;
   // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   // lcd->iic_write(regData, 1);
   // lcd->iic_write((regData + 1), 1);
   lcd->iic_write(regData, 2);
   arc_delay_us(2000);
 
-  regData[0] = 0x02; regData[1] = 0x00;
+  regData[0] = 0x04;
+  regData[1] = 0xff;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x03;
+  regData[1] = 0x00;
+  // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
+  // lcd->iic_write(regData, 1);
+  // lcd->iic_write((regData + 1), 1);
+  lcd->iic_write(regData, 2);
+  arc_delay_us(2000);
+
+  regData[0] = 0x02;
+  regData[1] = 0x00;
   // lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP));
   // lcd->iic_write(regData, 1);
   // lcd->iic_write((regData + 1), 1);
@@ -176,7 +182,7 @@ int main(void) {
   lcd->iic_close();
   lcd->iic_open(DEV_MASTER_MODE, IIC_SPEED_STANDARD);
   lcd->iic_control(IIC_CMD_MST_SET_TAR_ADDR, 0x3e);
-  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void*)(IIC_MODE_STOP)); 
+  lcd->iic_control(IIC_CMD_MST_SET_NEXT_COND, (void *)(IIC_MODE_STOP));
 
   data[0] = 0x80;
   data[1] &= ~LCD_DISPLAYON;
@@ -189,9 +195,10 @@ int main(void) {
   data[1] |= LCD_DISPLAYCONTROL;
   lcd->iic_write(data, 2);
 
-  regData = 
+  // regData =
 
-  while (1) {
+  while (1)
+  {
   }
 
   return E_SYS;

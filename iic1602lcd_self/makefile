@@ -1,6 +1,9 @@
 # Application name
 APPL ?= iic1602lcd
 
+BOARD=iotdk
+TOOLCHAIN=gnu
+
 #
 # root dir of embARC
 #
@@ -14,7 +17,7 @@ APPL_ASMSRC_DIR = .
 
 # application include dirs
 APPL_INC_DIR = .
-OLEVEL=O0
+OLEVEL=Og
 
 # include current project makefile
 COMMON_COMPILE_PREREQUISITES += makefile

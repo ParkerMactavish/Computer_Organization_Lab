@@ -2,9 +2,6 @@
 #define IIC1602LCD_H
 
 #include <stdint.h>
-#include "dev_iic.h"
-
-extern DEV_IIC_PTR iic_ptr;
 
 /* LCD Address */
 #define LCD_ADDRESS (0x3E)
@@ -20,9 +17,9 @@ typedef enum
 
 typedef enum
 {
-    L = 0,
-    R = 1,
-} L_R_t;
+    LEFT = 0,
+    RIGHT = 1,
+} LEFT_RIGHT_t;
 /* End On/Off and Direction */
 
 /* RGB Backlight */
@@ -88,6 +85,10 @@ typedef enum
 #define LCD_5x8DOTS_ 0xFB
 /* End LCD Function Set Flag */
 
+// void set_CursorPos(DEV_IIC_PTR iic_ptr, );/
+
+#define lcd_printf(format, ...) xfprintf(this->write, format, ##__VA_ARGS__)
+
 typedef struct iic1602lcd_obj_s
 {
     /* Setup Function */
@@ -101,8 +102,8 @@ typedef struct iic1602lcd_obj_s
     void (*set_Display)(ON_OFF_t Value);
     void (*set_Blink)(ON_OFF_t Value);
     void (*set_Cursor)(ON_OFF_t Value);
-    void (*set_ScrollDir)(L_R_t Value);
-    void (*set_CharStarting)(L_R_t Value);
+    void (*set_ScrollDir)(LEFT_RIGHT_t Value);
+    void (*set_CharStarting)(LEFT_RIGHT_t Value);
     void (*set_AutoScroll)(ON_OFF_t Value);
     /* End Setup Function */
 
@@ -112,7 +113,13 @@ typedef struct iic1602lcd_obj_s
     void (*set_RGBs)(uint8_t R, uint8_t G, uint8_t B);
     void (*set_RGB)(COLOR_t Color, uint8_t Value);
     /* End RGB Function */
+
+    /* Utility Function */
+    void (*write)(const char Chr);
+    /* End Utility Function */
 } LCD_t, *pLCD_t;
+
+extern LCD_t *this;
 
 pLCD_t LCD_Init(int32_t iic_id);
 
