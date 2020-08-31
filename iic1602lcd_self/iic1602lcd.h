@@ -87,13 +87,12 @@ typedef enum
 
 // void set_CursorPos(DEV_IIC_PTR iic_ptr, );/
 
-#define lcd_printf(format, ...) xfprintf(this->write, format, ##__VA_ARGS__)
-
 typedef struct iic1602lcd_obj_s
 {
     /* Setup Function */
     void (*set_CursorPos)(uint8_t col, uint8_t row);
     void (*print)(const char *str, uint8_t len);
+    void (*printf)(const char *format, ...);
     void (*clear)(void);
     void (*home)(void);
     /* End Setup Function */
@@ -118,8 +117,6 @@ typedef struct iic1602lcd_obj_s
     void (*write)(const char Chr);
     /* End Utility Function */
 } LCD_t, *pLCD_t;
-
-extern LCD_t *this;
 
 pLCD_t LCD_Init(int32_t iic_id);
 

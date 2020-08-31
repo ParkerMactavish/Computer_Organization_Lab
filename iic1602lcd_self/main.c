@@ -58,7 +58,7 @@ int main(void)
   // lcd_obj->set_CharStarting(RIGHT);
   for (int i = 0; i < 48; i++)
   {
-    lcd_printf("%d", i % 10);
+    lcd_obj->printf("%d", i % 10);
     board_delay_ms(1000, 1);
   }
 

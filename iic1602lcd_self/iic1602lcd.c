@@ -10,6 +10,7 @@
 /* Internal Setup Function */
 static void set_CursorPos_(uint8_t Col, uint8_t Row);
 static void print_(const char *Str, uint8_t Len);
+static void printf_(const char *format, ...);
 static void write_(const char Chr);
 static void clear_();
 static void home_();
@@ -55,6 +56,7 @@ pLCD_t LCD_Init(int32_t iic_id)
     /* Assigning Public Functions*/
     lcd.set_CursorPos = set_CursorPos_;
     lcd.print = print_;
+    lcd.printf = printf_;
     lcd.clear = clear_;
     lcd.home = home_;
 
@@ -122,8 +124,23 @@ static void print_(const char *Str, uint8_t Len)
 {
     for (int i = 0; i < Len; i++)
     {
-        write(Str[i]);
+        write_(Str[i]);
     }
+}
+
+static void printf_(const char *format, ...)
+{
+    va_list arp;
+    void (*pf)(unsigned char);
+
+    pf = xfunc_out;
+    xfunc_out = this->write;
+
+    va_start(arp, format);
+    xvprintf(format, arp);
+    va_end(arp);
+
+    xfunc_out = pf;
 }
 
 static void write_(const char Chr)
